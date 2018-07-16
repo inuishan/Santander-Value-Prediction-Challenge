@@ -16,6 +16,7 @@ y_train = train['target']
 y_train = np.log1p(y_train)
 
 train.drop("ID", axis=1, inplace=True)
+train.drop("target", axis=1, inplace=True)
 
 cols_with_onlyone_val = train.columns[train.nunique() == 1]
 
