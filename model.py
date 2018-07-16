@@ -1,30 +1,33 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from torch import nn, optim
+
 
 import torch
 import numpy as np
-import torch.nn.functional as F
 
 from torch.autograd import Variable
 
 
-class Net(torch.nn.Module):
-    def __init__(self, n_feature, n_hidden, n_output):
-        super(Net, self).__init__()
-        self.hidden = torch.nn.Linear(n_feature, n_hidden)  # hidden layer
-        self.predict = torch.nn.Linear(n_hidden, n_output)  # output layer
+
+# Linear Regression Model
+class LinearRegression(nn.Module):
+    def __init__(self):
+        super(LinearRegression, self).__init__()
+        self.linear = nn.Linear(1, 1)  # input and output is 1 dimension
 
     def forward(self, x):
-        x = F.relu(self.hidden(x))  # activation function for hidden layer
-        x = self.predict(x)  # linear output
+        out = self.linear(x)
+        return out
 
+model = LinearRegression()
+# 定义loss和优化函数
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=1e-4)
 
-net = Net(4991, 10, 1)
-print(net)
-optimizer = torch.optim.SGD(net.parameters(), lr=0.2)
-loss_func = torch.nn.MSELoss()
-plt.ion()  # something about plotting
+# 开始训练
+num_epochs = 1000
 
 
 def read_train_file():
@@ -35,26 +38,6 @@ def read_train_file():
     return df
 
 
-def train(x, y):
-    for t in range(200):
-        prediction = net(X_train)  # input x and predict based on x
-
-    loss = loss_func(prediction, y)  # must be (1. nn output, 2. target)
-
-    optimizer.zero_grad()  # clear gradients for next train
-    loss.backward()  # backpropagation, compute gradients
-    optimizer.step()  # apply gradients
-
-    if t % 5 == 0:
-        # plot and show learning process
-        plt.cla()
-        plt.scatter(x.data.numpy(), y.data.numpy())
-        plt.plot(x.data.numpy(), prediction.data.numpy(), 'r-', lw=5)
-        plt.text(0.5, 0, 'Loss=%.4f' % loss.data.numpy(), fontdict={'size': 20, 'color': 'red'})
-        plt.pause(0.1)
-
-    plt.ioff()
-    plt.show()
 
 
 if __name__ == "__main__":
@@ -67,6 +50,39 @@ if __name__ == "__main__":
     del X_train["target"]
     del X_test["target"]
 
-    X_train = np.array(X_train.values)
-    y_train = np.array(torch.Tensor(y_train.values))
-    x = train(Variable(torch.from_numpy(X_train)), Variable(torch.from_numpy(y_train)))
+    X_array = np.array(X_train.values)
+    X_train = torch.from_numpy(X_array).float()
+    y_array = np.array(y_train.values)
+
+    y_arr_mod = []
+
+    for val in y_array:
+        y_arr_mod.append([val])
+    y_array = y_arr_mod
+    y_final_array = np.array(y_array)
+    y_train = torch.from_numpy(y_final_array).float()
+    for epoch in range(num_epochs):
+        inputs = Variable(X_train)
+        target = Variable(y_train)
+
+        # forward
+        out = model(inputs)
+        loss = criterion(out, target)
+        # backward
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if (epoch+1) % 20 == 0:
+            print('Epoch[{}/{}], loss: {:.6f}'
+                  .format(epoch+1, num_epochs, loss.data[0]))
+
+    model.eval()
+    predict = model(Variable(X_train))
+    predict = predict.data.numpy()
+    plt.plot(X_train.numpy(), y_train.numpy(), 'ro', label='Original data')
+    plt.plot(X_train.numpy(), predict, label='Fitting Line')
+    # 显示图例
+    plt.legend()
+    plt.show()
+    torch.save(model.state_dict(), './linear.pth')
