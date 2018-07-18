@@ -3,6 +3,10 @@ import pandas as pd
 from sklearn import model_selection
 from sklearn import ensemble
 from scipy.stats import ks_2samp
+from sklearn import random_projection
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
+from sklearn.metrics import mean_squared_error
 
 read_test = True
 num_decimals = 32
@@ -65,3 +69,52 @@ if read_test:
             train.drop(col, axis=1, inplace=True)
             test.drop(col, axis=1, inplace=True)
     print(train.shape)
+
+ntrain = len(train)
+weight = ((train != 0).sum() / len(train)).values
+ntest = len(test)
+tmp = pd.concat([train, test])  # RandomProjection
+tmp_train = train[train != 0]
+tmp_test = test[test != 0]
+train["weight_count"] = (tmp_train * weight).sum(axis=1)
+test["weight_count"] = (tmp_test * weight).sum(axis=1)
+train["count_not0"] = (train != 0).sum(axis=1)
+test["count_not0"] = (test != 0).sum(axis=1)
+train["sum"] = train.sum(axis=1)
+test["sum"] = test.sum(axis=1)
+train["var"] = tmp_train.var(axis=1)
+test["var"] = tmp_test.var(axis=1)
+train["median"] = tmp_train.median(axis=1)
+test["median"] = tmp_test.median(axis=1)
+train["mean"] = tmp_train.mean(axis=1)
+test["mean"] = tmp_test.mean(axis=1)
+train["std"] = tmp_train.std(axis=1)
+test["std"] = tmp_test.std(axis=1)
+train["max"] = tmp_train.max(axis=1)
+test["max"] = tmp_test.max(axis=1)
+train["min"] = tmp_train.min(axis=1)
+test["min"] = tmp_test.min(axis=1)
+train["skew"] = tmp_train.skew(axis=1)
+test["skew"] = tmp_test.skew(axis=1)
+train["kurtosis"] = tmp_train.kurtosis(axis=1)
+test["kurtosis"] = tmp_test.kurtosis(axis=1)
+del (tmp_train)
+del (tmp_test)
+NUM_OF_COM = 100  # need tuned
+transformer = random_projection.SparseRandomProjection(n_components=NUM_OF_COM)
+RP = transformer.fit_transform(tmp)
+rp = pd.DataFrame(RP)
+columns = ["RandomProjection{}".format(i) for i in range(NUM_OF_COM)]
+rp.columns = columns
+
+rp_train = rp[:ntrain]
+rp_test = rp[ntrain:]
+rp_test.index = test.index
+
+# concat RandomProjection and raw data
+train = pd.concat([train, rp_train], axis=1)
+test = pd.concat([test, rp_test], axis=1)
+
+del (rp_train)
+del (rp_test)
+print(train.shape)
