@@ -13,6 +13,7 @@ num_decimals = 32
 num_features = 1000
 threshold_p_value = 0.01
 threshold_static = 0.3
+num_folds = 5
 
 train = pd.read_csv('train.csv')
 
@@ -118,3 +119,23 @@ test = pd.concat([test, rp_test], axis=1)
 del (rp_train)
 del (rp_test)
 print(train.shape)
+
+
+def rmsle_cv(model):
+    kf = KFold(num_folds, shuffle=True, random_state=42).get_n_splits(train.values)
+    rmse = np.sqrt(-cross_val_score(model, train, y_train, scoring="neg_mean_squared_error", cv=kf))
+    return rmse
+
+
+class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
+    def __init__(self, models):
+        self.modesls = models
+
+    def fit(self, X, y):
+        self.models_ = [clone(x) for x in self.models]
+        for model in self.models_:
+            model.fit(X, y)
+
+    def predixt(self, X):
+        predictions = np.column_stack([model.predict(X) for model in self.models_])
+        return np.mean(predictions, axis=1)
