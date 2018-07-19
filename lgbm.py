@@ -131,14 +131,14 @@ def rmsle_cv(model):
 
 class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def __init__(self, models):
-        self.modesls = models
+        self.models = models
 
     def fit(self, X, y):
         self.models_ = [clone(x) for x in self.models]
         for model in self.models_:
             model.fit(X, y)
 
-    def predixt(self, X):
+    def predict(self, X):
         predictions = np.column_stack([model.predict(X) for model in self.models_])
         return np.mean(predictions, axis=1)
 
