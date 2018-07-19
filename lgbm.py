@@ -7,6 +7,8 @@ from sklearn import random_projection
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
 from sklearn.metrics import mean_squared_error
+import xgboost as xgb
+import lightgbm as lgb
 
 read_test = True
 num_decimals = 32
@@ -139,3 +141,23 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def predixt(self, X):
         predictions = np.column_stack([model.predict(X) for model in self.models_])
         return np.mean(predictions, axis=1)
+
+
+model_xgb = xgb.XGBRegressor(colsample_bytree=.55, colsample_bylevel=.5, gamma=1.5, learning_rate=2, max_depth=32,
+                             objective='reg:linear', booster='gbtree', min_child_weight=57, n_estimators=1000,
+                             reg_alpha=0, reg_lambda=0, eval_metric='rmse', subsample=.7, silent=True, n_jobs=-1,
+                             early_stopping_rounds=14, random_state=7, nthread=-1)
+
+model_lgb = lgb.LGBMRegressor(objective='regression', num_leaves=144,
+                              learning_rate=0.005, n_estimators=720, max_depth=13,
+                              metric='rmse', is_training_metric=True,
+                              max_bin=55, bagging_fraction=0.8, verbose=-1,
+                              bagging_freq=5, feature_fraction=0.9)
+
+score = rmsle_cv(model_xgb)
+print("Xgboost score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+score = rmsle_cv(model_lgb)
+print("LGBM score: {:.4f} ({:.4f})\n" .format(score.mean(), score.std()))
+averaged_models = AveragingModels(models = (model_xgb, model_lgb))
+score = rmsle_cv(averaged_models)
+print("averaged score: {:.4f} ({:.4f})\n" .format(score.mean(), score.std()))
