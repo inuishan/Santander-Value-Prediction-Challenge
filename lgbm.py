@@ -1,5 +1,12 @@
 import numpy as np  # linear algebra
 import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
+from scipy.stats import ks_2samp
+from sklearn import model_selection
+from sklearn import ensemble
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
+import xgboost as xgb
+import lightgbm as lgb
 
 import warnings
 
@@ -28,10 +35,6 @@ for i in range(len(columns) - 1):
             colsToRemove.append(columns[j])
 train.drop(colsToRemove, axis=1, inplace=True)
 test.drop(colsToRemove, axis=1, inplace=True)
-train.shape
-
-from sklearn import model_selection
-from sklearn import ensemble
 
 NUM_OF_FEATURES = 1000
 
@@ -50,9 +53,6 @@ col = pd.DataFrame({'importance': model.feature_importances_, 'feature': train.c
     by=['importance'], ascending=[False])[:NUM_OF_FEATURES]['feature'].values
 train = train[col]
 test = test[col]
-train.shape
-
-from scipy.stats import ks_2samp
 
 THRESHOLD_P_VALUE = 0.01  # need tuned
 THRESHOLD_STATISTIC = 0.3  # need tuned
@@ -65,8 +65,6 @@ for col in diff_cols:
     if col in train.columns:
         train.drop(col, axis=1, inplace=True)
         test.drop(col, axis=1, inplace=True)
-train.shape
-
 from sklearn import random_projection
 
 ntrain = len(train)
@@ -116,13 +114,6 @@ test = pd.concat([test, rp_test], axis=1)
 
 del (rp_train)
 del (rp_test)
-train.shape
-
-from sklearn.model_selection import KFold, cross_val_score, train_test_split
-from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
-from sklearn.metrics import mean_squared_error
-import xgboost as xgb
-import lightgbm as lgb
 
 # define evaluation method for a given model. we use k-fold cross validation on the training set.
 # the loss function is root mean square logarithm error between target and prediction
@@ -161,7 +152,7 @@ model_xgb = xgb.XGBRegressor(colsample_bytree=0.055, colsample_bylevel=0.5,
                              objective='reg:linear', booster='gbtree',
                              min_child_weight=57, n_estimators=1000, reg_alpha=0,
                              reg_lambda=0, eval_metric='rmse', subsample=0.7,
-                             silent=1, n_jobs=-1, early_stopping_rounds=14,
+                             silent=True, n_jobs=-1, early_stopping_rounds=14,
                              random_state=7, nthread=-1)
 model_lgb = lgb.LGBMRegressor(objective='regression', num_leaves=144,
                               learning_rate=0.005, n_estimators=720, max_depth=13,

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f5fda094-572a-4930-bf78-a000c635a5ca" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lgbm.py" beforeDir="false" afterPath="$PROJECT_DIR$/lgbm.py" afterDir="false" />
-    </list>
+    <list default="true" id="f5fda094-572a-4930-bf78-a000c635a5ca" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -39,8 +36,8 @@
       <file leaf-file-name="lgbm.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lgbm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="432">
-              <caret line="163" column="33" selection-start-line="163" selection-start-column="33" selection-end-line="163" selection-end-column="33" />
+            <state relative-caret-position="2610">
+              <caret line="174" lean-forward="true" selection-start-line="116" selection-end-line="174" />
               <folding>
                 <element signature="e#0#35#0" expanded="true" />
               </folding>
@@ -151,10 +148,9 @@
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths />
   </component>
-  <component name="ProjectFrameBounds" extendedState="4">
-    <option name="x" value="1280" />
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="26" />
-    <option name="width" value="1270" />
+    <option name="width" value="2560" />
     <option name="height" value="1054" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -314,6 +310,7 @@
       <workItem from="1531925759071" duration="1277000" />
       <workItem from="1531969935801" duration="2751000" />
       <workItem from="1532058178766" duration="795000" />
+      <workItem from="1532104464053" duration="334000" />
     </task>
     <task id="LOCAL-00001" summary="if read test then reading test">
       <created>1531718939465</created>
@@ -364,14 +361,22 @@
       <option name="project" value="LOCAL" />
       <updated>1531971457654</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="working model">
+      <created>1532104480214</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1532104480214</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15485000" />
+    <option name="totallyTimeSpent" value="15819000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="26" width="1270" height="1054" extended-state="4" />
+    <frame x="0" y="26" width="2560" height="1054" extended-state="7" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -395,7 +400,7 @@
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Theme Preview" order="9" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.39978448" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39978448" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -420,7 +425,8 @@
     <MESSAGE value="averaging models" />
     <MESSAGE value="xgb and lightdm" />
     <MESSAGE value="spelling corrections" />
-    <option name="LAST_COMMIT_MESSAGE" value="spelling corrections" />
+    <MESSAGE value="working model" />
+    <option name="LAST_COMMIT_MESSAGE" value="working model" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -847,8 +853,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lgbm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="163" column="33" selection-start-line="163" selection-start-column="33" selection-end-line="163" selection-end-column="33" />
+        <state relative-caret-position="2610">
+          <caret line="174" lean-forward="true" selection-start-line="116" selection-end-line="174" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
           </folding>
