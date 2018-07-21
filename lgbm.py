@@ -7,6 +7,8 @@ from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
 import xgboost as xgb
 import lightgbm as lgb
+import pickle
+from sklearn.model_selection import GridSearchCV
 
 import warnings
 
@@ -26,13 +28,18 @@ NUM_OF_DECIMALS = 32
 train = train.round(NUM_OF_DECIMALS)
 test = test.round(NUM_OF_DECIMALS)
 colsToRemove = []
+
 columns = train.columns
-for i in range(len(columns) - 1):
-    v = train[columns[i]].values
-    dupCols = []
-    for j in range(i + 1, len(columns)):
-        if np.array_equal(v, train[columns[j]].values):
-            colsToRemove.append(columns[j])
+try:
+    colsToRemove = pickle.load(open("colsToRemove.pickle", "rb"))
+except (OSError, IOError) as e:
+    for i in range(len(columns) - 1):
+        v = train[columns[i]].values
+        dupCols = []
+        for j in range(i + 1, len(columns)):
+            if np.array_equal(v, train[columns[j]].values):
+                colsToRemove.append(columns[j])
+    pickle.dump(colsToRemove, open("colsToRemove.pickle", "wb"))
 train.drop(colsToRemove, axis=1, inplace=True)
 test.drop(colsToRemove, axis=1, inplace=True)
 
@@ -147,23 +154,50 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
         return np.mean(predictions, axis=1)
 
 
-model_xgb = xgb.XGBRegressor(colsample_bytree=0.055, colsample_bylevel=0.5,
+model_xgb = xgb.XGBRegressor(colsample_bytree=0.035, colsample_bylevel=0.4,
                              gamma=1.5, learning_rate=0.02, max_depth=32,
                              objective='reg:linear', booster='gbtree',
-                             min_child_weight=57, n_estimators=1000, reg_alpha=0,
+                             min_child_weight=50, n_estimators=1000, reg_alpha=0,
                              reg_lambda=0, eval_metric='rmse', subsample=0.7,
                              silent=True, n_jobs=-1, early_stopping_rounds=14,
                              random_state=7, nthread=-1)
+
+parameters = {
+    "colsample_bytree": [0.035, 0.045, 0.055, 0.066],
+    "colsample_bylevel": [0.4, 0.5, 0.6],
+    "gamma": [1.4, 1.5, 1.6],
+    "max_depth": [32, 40, 45],
+    "min_child_weight": [50, 57, 70]
+}
+
+# xgb_gs = GridSearchCV(model_xgb, parameters, n_jobs=6, verbose=True)
+# xgb_gs.fit(train, y_train)
+# print(xgb_gs.cv_results_)
+
+
+parameters = {
+    "num_leaves": [140, 150, 160],
+    "n_estimators": [700, 720, 800],
+    "max_depth": [13, 15, 17]
+}
+
 model_lgb = lgb.LGBMRegressor(objective='regression', num_leaves=144,
                               learning_rate=0.005, n_estimators=720, max_depth=13,
                               metric='rmse', is_training_metric=True,
                               max_bin=55, bagging_fraction=0.8, verbose=-1,
                               bagging_freq=5, feature_fraction=0.9)
+
+lgb_gs = GridSearchCV(model_lgb, parameters, n_jobs=8, verbose=True)
+lgb_gs.fit(train, y_train)
+print(lgb_gs.cv_results_)
+print(lgb_gs.best_params_)
+
+
 score = rmsle_cv(model_xgb)
 print("Xgboost score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 score = rmsle_cv(model_lgb)
 print("LGBM score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
-averaged_models = AveragingModels(models=(model_xgb, model_lgb))
+averaged_models = AveragingModels(models=(model_xgb, lgb_gs))
 score = rmsle_cv(averaged_models)
 print("averaged score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 
